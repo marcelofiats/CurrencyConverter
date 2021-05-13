@@ -17,7 +17,7 @@ class CreateConvertionsTable extends Migration
             $table->id();
             $table->string('currency_from');
             $table->string('currency_to');
-            $table->string('cambio');
+            $table->decimal('cambio', 4,2);
             $table->timestamps();
         });
     }

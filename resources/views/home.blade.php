@@ -35,7 +35,7 @@
                         <div class="row mt-4">
                             <div class="col-md-12">
                                 <div id="result"></div>
-                                <input type="text" class="form-control" id="cambio" name="cambio">
+                                <input type="text" class="form-control" id="cambio" name="cambio" value="">
                             </div>
                         </div>
                     </form>
@@ -52,6 +52,12 @@
 
                         </tbody>
                     </table>
+                    <div class="d-flex justify-content-center">
+                        <div class="btn-toolbar" role="toolbar" aria-label="Toolbar with button groups">
+                            <div id="mountButton" class="btn-group mr-2" role="group" aria-label="First group">
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -61,6 +67,10 @@
 
 @section('script')
 <script>
+    var key = 'd1b2975620847bdec77d719c7f88f78e';
+    var urlPattern = 'http://api.exchangeratesapi.io/v1/latest?access_key=' + key;
+
+    var page = 1;
 
     $(function(){
         findValues();
@@ -69,17 +79,41 @@
 
     function loadPage(){
         $.ajax({
-            url: '/api/convertions/index',
+            url: '/api/convertions/index?page='+page,
             dataType: 'json',
             contentType: 'application/json',
             success: function(data){
+                mountButton(data);
                 $('#table>tbody').empty();
-                for (i = 0; i < data.length; i++) {
-                    var line = mountTable(data[i]);
+                for (i = 0; i < data.data.length; i++) {
+                    var line = mountTable(data.data[i]);
                     $('#table>tbody').append(line);
                 }
-            }
+            },
         });
+    }
+
+    function changePage(indice) {
+        page = indice;
+        loadPage();
+    }
+
+    function mountButton(data) {
+        $('#mountButton').empty();
+        if (page > 1 ) {
+            var button = '<button type="button" id="prev" class="btn btn-secondary" onclick="changePage('+(page-1)+')">Prev</button>';
+            $('#mountButton').append(button);
+        }
+        for(i = 0; i <= (Math.ceil(data.total)/10); i++) {
+            value = i + 1;
+            var button = '<button type="button" id="page'+value+'" class="btn btn-secondary" onclick="changePage('+value+')">'+value+'</button>';
+            $('#mountButton').append(button);
+        }
+        if (page * 10 < data.total) {
+            var button = '<button type="button" id="next" class="btn btn-secondary" onclick="changePage('+(page+1)+')">Next</button>';
+            $('#mountButton').append(button);
+        }
+
     }
 
     function mountTable(data) {
@@ -109,19 +143,22 @@
             data: formData,
             contentType: false,
             processData: false,
-            success: function(){
+            success: function(result){
+                if (! result.resul) {
+                    alert('Ocorreu um erro na gravação da conversão');
+                    return;
+                }
+                alert(result.result.message);
                 loadPage();
             }
         });
     }
 
     function findValues() {
-        var url = 'http://api.exchangeratesapi.io/v1/latest?access_key=0de63256844154c49915583b3070b2df'
         $.ajax({
-            url: url,
+            url: urlPattern,
             dataType: 'jsonp',
             success: function(data){
-                console.log(data.rates[Object.keys(data.rates)[0]]);
                 for( i = 0; i < Object.keys(data.rates).length; i++) {
                     var key = Object.keys(data.rates)[i];
                     var option = mountLine(key);
@@ -143,32 +180,29 @@
         if (! validation()) {
             return false
         }
-        var keyFrom = document.getElementById('currency_from').options[document.getElementById('currency_from').selectedIndex].innerText;
-        var keyTo = document.getElementById('currency_to').options[document.getElementById('currency_to').selectedIndex].innerText;
-
         var valueFrom = $('#currency_from').val();
         var valueTo = $('#currency_to').val();
 
-        var url = 'http://api.exchangeratesapi.io/v1/latest?access_key=0de63256844154c49915583b3070b2df';
-        var base = '&base=' + keyFrom;
-        url +=base;
-
-        var symbol = keyTo;
+        var base = '&base=' + valueFrom;
+        var url = urlPattern + base;
 
         $.ajax({
             url: url,
             dataType: 'jsonp',
+            contentType: 'application/json',
+            async: false,
             success: function(data){
-                var convertion = data.rates[keyTo];
-                convertion = convertion.toLocaleString('pt-br',{maximumFractionDigits: 2});
+                var convertion = data.rates[valueTo];
                 $('#cambio').val(convertion);
-                $('#currency_from').val(keyFrom);
-                $('#currency_to').val(keyTo);
-                $('#result').html('Resultado:  1 ' + keyFrom + ' = ' + convertion + ' ' + keyTo);
+                convertion = convertion.toLocaleString('pt-br',{maximumFractionDigits: 2});
+                $('#currency_from').val(valueFrom);
+                $('#currency_to').val(valueTo);
+                $('#result').html('Resultado:  1 ' + valueFrom + ' = ' + convertion + ' ' + valueTo);
+                saveConversion();
             }
+        }).fail(function(error){
+            aler('Ocorreu um erro na execução' + error);
         });
-
-        saveConversion();
     }
 
     function validation(){

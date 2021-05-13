@@ -10,6 +10,6 @@ class Convertion extends Model
     use HasFactory;
 
     public $fillable = [
-        'currency_from','value_from' ,'currency_to', 'value_to', 'value_total'
+        'currency_from','currency_to', 'cambio'
     ];
 }
