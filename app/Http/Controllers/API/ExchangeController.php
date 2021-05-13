@@ -18,6 +18,17 @@ class ExchangeController extends Controller
         $convertion->currency_from = $request->currency_from;
         $convertion->currency_to = $request->currency_to;
         $convertion->cambio = $request->cambio;
-        $convertion->save();
+        $index = $convertion->save();
+
+        if (! $index) {
+            return response()->json([
+                'result' => false,
+                'message' => 'Ocorreu um erro no gravação de conversão',
+            ]);
+        }
+        return response()->json([
+            'result' => true,
+            'message' => 'Conversão gravada com sucesso',
+        ]);
     }
 }

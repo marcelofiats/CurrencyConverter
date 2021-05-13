@@ -148,7 +148,7 @@
                     alert('Ocorreu um erro na gravação da conversão');
                     return;
                 }
-                alert(result.result.message);
+                alert(result.message);
                 loadPage();
             }
         });
@@ -183,16 +183,14 @@
         var valueFrom = $('#currency_from').val();
         var valueTo = $('#currency_to').val();
 
-        var base = '&base=' + valueFrom;
-        var url = urlPattern + base;
+        var url = 'http://economia.awesomeapi.com.br/last/'+valueFrom+'-'+valueTo;
 
         $.ajax({
             url: url,
-            dataType: 'jsonp',
-            contentType: 'application/json',
+            dataType: 'json',
             async: false,
             success: function(data){
-                var convertion = data.rates[valueTo];
+                var convertion = data[valueFrom + valueTo].ask;
                 $('#cambio').val(convertion);
                 convertion = convertion.toLocaleString('pt-br',{maximumFractionDigits: 2});
                 $('#currency_from').val(valueFrom);
@@ -200,9 +198,8 @@
                 $('#result').html('Resultado:  1 ' + valueFrom + ' = ' + convertion + ' ' + valueTo);
                 saveConversion();
             }
-        }).fail(function(error){
-            aler('Ocorreu um erro na execução' + error);
         });
+
     }
 
     function validation(){
