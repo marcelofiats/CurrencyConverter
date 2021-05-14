@@ -10,7 +10,7 @@ $(function () {
 
 function loadPage() {
     $.ajax({
-        url: '/api/convertions/index?page=' + page,
+        url: '/api/convertions/index?page='+page,
         dataType: 'json',
         contentType: 'application/json',
         success: function (data) {
@@ -48,8 +48,7 @@ function mountButton(data) {
 }
 
 function mountTable(data) {
-    var valueFrom = data.currency_from.toLocaleString('pt-br', { maximumFractionDigits: 2 });
-    var valueTo = data.currency_to.toLocaleString('pt-br', { maximumFractionDigits: 2 });
+
     var total = data.cambio.toLocaleString('pt-br', { maximumFractionDigits: 2 });
     var date = new Date(data.created_at);
 
@@ -74,12 +73,11 @@ function saveConversion() {
         data: formData,
         contentType: false,
         processData: false,
-        success: function (result) {
-            if (!result.resul) {
-                alert('Ocorreu um erro na gravação da conversão');
+        success: function (response) {
+            if (! response.result) {
+                alert(response.message);
                 return;
             }
-            alert(result.result.message);
             loadPage();
         }
     });
@@ -100,6 +98,33 @@ function findValues() {
             }
         }
     });
+}
+
+function convert(){
+    if (! validation()) {
+        return false
+    }
+    var valueFrom = $('#currency_from').val();
+    var valueTo = $('#currency_to').val();
+
+    var base = '&base=' + valueFrom;
+    var url = urlPattern + base;
+
+    $.ajax({
+        url: url,
+        dataType: 'jsonp',
+        success: function(data){
+            var convertion = data.rates[valueTo];
+            $('#cambio').val(convertion);
+            convertion = convertion.toLocaleString('pt-br',{maximumFractionDigits: 2});
+            $('#currency_from').val(valueFrom);
+            $('#currency_to').val(valueTo);
+            $('#result').html('Resultado:  1 ' + valueFrom + ' = ' + convertion + ' ' + valueTo);
+            saveConversion();
+        }
+    });
+
+
 }
 
 function mountLine(key) {

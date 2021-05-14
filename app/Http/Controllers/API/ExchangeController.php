@@ -9,7 +9,7 @@ use App\Models\Convertion;
 class ExchangeController extends Controller
 {
     public function index() {
-        $convertions = Convertion::orderBy('created_at', 'DESC')->get();
+        $convertions = Convertion::orderBy('created_at', 'DESC')->paginate(10);
         return $convertions->toJson();
     }
 
