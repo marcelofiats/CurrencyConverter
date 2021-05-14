@@ -34,7 +34,7 @@
                         <div class="row mt-4">
                             <div class="col-md-12">
                                 <div id="result"></div>
-                                <input type="text" class="form-control" id="cambio" name="cambio" value="">
+                                <input type="hidden" class="form-control" id="cambio" name="cambio" value="">
                             </div>
                         </div>
                     </form>
