@@ -15,7 +15,7 @@
                 background-color: rgb(190, 190, 190);
             }
             #box {
-                height: 600px;
+                height:450px;
                 margin-top: 8%;
                 background-color: rgb(147, 147, 218);
                 border-radius: 60px 10px;
@@ -28,7 +28,7 @@
     </head>
     <body>
         <div class="row d-flex justify-content-center">
-            <div id="box" class="col-md-4 col-sm-10 p-5">
+            <div id="box" class="col-md-3 col-sm-10 p-5">
                 @auth
                     <div class="text-center mt-5">
                         <a href="{{ url('/home') }}" class="btn btn-info btn-lg"> Home </a>
@@ -69,7 +69,7 @@
             event.preventDefault();
             var success = true;
             $('#errorEmail').html('');
-            $('#errorpassword').html('');
+            $('#errorPassword').html('');
 
             if ($('#email').val() == '') {
                 success = false;
@@ -81,7 +81,7 @@
             }
             if ($('#password').val() == '') {
                 success = false;
-                $('#password').html('Digite a senha');
+                $('#errorPassword').html('Digite a senha');
             }
             if (success) {
                 event.target.submit();
